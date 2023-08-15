@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 )
 
 func main() {
 	GetReq()
+	PostReq()
+	FormReq()
 }
 
 func GetReq() {
@@ -30,6 +33,40 @@ func GetReq() {
 	fmt.Println("Content the other way  -> ", resString.String())
 	
 	defer res.Body.Close()
+}
+
+func PostReq(){
+	const url  = "http://localhost:1111/post"
+	// data payload
+	reqBody := strings.NewReader(`
+		{
+			"name":"Devilop",
+			"role":"backendDev"
+		}
+	`)
+	res,err := http.Post(url,"application/json",reqBody)
+	ErrorHandler(err)
+	defer res.Body.Close()
+	data, err := io.ReadAll(res.Body)
+	ErrorHandler(err)
+	fmt.Println("Data -> " , string(data))
+}
+
+func FormReq(){
+	const myUrl  = "http://localhost:1111/postform"
+	// adding form data 
+	data:= url.Values{}
+	data.Add("name","unkown")
+	data.Add("age","19")
+	data.Add("location","Mumbai")
+	// send req
+	res,err:= http.PostForm(myUrl,data)
+	ErrorHandler(err)
+	defer res.Body.Close()
+	content,err:=io.ReadAll(res.Body)
+	ErrorHandler(err)
+	fmt.Println("Form content ", string(content))
+
 }
 
 func ErrorHandler(err error){
